@@ -29,11 +29,6 @@ void
 setup (void)
 {
     //gpio
-<<<<<<< HEAD
-    TRISA = 0x3;
-    TRISB = 0xfee0;
-=======
->>>>>>> origin/master
     AD1PCFG = 0x1FFC;
     TRISA = 0x3;
     TRISB = 0xfee0;
