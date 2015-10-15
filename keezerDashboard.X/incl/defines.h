@@ -13,7 +13,7 @@ extern "C" {
 #endif
 
 #include <p24Fxxxx.h>
-//#include <xc.h>
+#include <xc.h>
 
 // shorthand types
 typedef unsigned char       U8;

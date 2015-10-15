@@ -26,8 +26,8 @@ void
 setup (void)
 {
     //gpio
-    TRISAbits = 0x3;
-    TRISBbits = 0xfee0;
+    TRISA = 0x3;
+    TRISB = 0xfee0;
     AD1PCFG = 0x1FFC;
     AD1CON2bits.VCFG = 0x0;
     AD1CON3bits.ADCS = 0x7;
