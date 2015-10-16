@@ -42,8 +42,27 @@ setup (void)
     RPOR0bits.RP1R = 8;     //assign SCK1 to RP1
 
     //spi
+    SPI1CON1bits.PPRE = 0x3;
+    SPI1CON1bits.SPRE = 0x7;
+    SPI1CON1bits.MSTEN = 0x1;
+    SPI1CON1bits.CKP = 0x0;
+    SPI1CON1bits.CKE = 0x0;
+    SPI1CON1bits.SMP = 0x0;
+    SPI1CON1bits.MODE16 = 0x1;
+    SPI1CON1bits.DISSDO = 0x0;
+    SPI1CON1bits.DISSCK = 0x0;
+    
+    SPI1CON2bits.SPIBEN = 0;
+    SPI1CON2bits.SPIFE = 0;
+    SPI1CON2bits.SPIFPOL = 1;
+    SPI1CON2bits.SPIFSD = 1;
+    SPI1CON2bits.FRMEN = 0;
+    
+    SPI1STATbits.SISEL = 0x5;
+    SPI1STATbits.SPISIDL = 0;
+    SPI1STATbits.SPIEN = 1;
 
-    //oc
+    //oc ???
 
     //uart
 
