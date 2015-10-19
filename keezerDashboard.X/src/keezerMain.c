@@ -27,6 +27,7 @@ main (void)
     setup();
     
     spiData = 1;
+    ledMuxCol = 0;
 
     for(;;)
     {
@@ -47,42 +48,51 @@ main (void)
             events.startSpiWrite = FALSE;
             
             if (spiData == 0x1000)
+            {
                 spiData = 1;
+                
+                switch(ledMuxCol)
+                {
+                    case 0:
+                    {
+                        PORTAbits.RA2 = 1;
+                        ledMuxCol = 1;
+                    } break;
+
+                    case 1:
+                    {
+                        PORTAbits.RA3 = 1;
+                        ledMuxCol = 2;
+                    } break;
+
+                    case 2:
+                    {
+                        PORTAbits.RA4 = 1;
+                        ledMuxCol = 3;
+                    } break;
+
+                    case 3:
+                    {
+                        PORTBbits.RB2 = 1;
+                        ledMuxCol = 4;
+                    } break;
+
+                    case 4:
+                    {
+                        PORTBbits.RB4 = 1;
+                        ledMuxCol = 0;
+                    } break;
+
+                    default:
+                    {
+                        ledMuxCol = 0;
+                    } break;
+                }
+            }
         }
         
         if(events.latchShiftRegs == TRUE)
         {
-            switch(ledMuxCol)
-            {
-                case 0:
-                    PORTAbits.RA2 = 1;
-                    ledMuxCol = 1;
-                    break;
-                    
-                case 1:
-                    PORTAbits.RA3 = 1;
-                    ledMuxCol = 2;
-                    break;
-                    
-                case 2:
-                    PORTAbits.RA4 = 1;
-                    ledMuxCol = 3;
-                    break;
-                    
-                case 3:
-                    PORTBbits.RB2 = 1;
-                    ledMuxCol = 4;
-                    break;
-                    
-                case 4:
-                    PORTBbits.RB4 = 1;
-                    ledMuxCol = 0;
-                    break;
-                    
-                default:
-                    break;
-            }
-            
             events.latchShiftRegs = FALSE;
         }
     }
@@ -99,7 +109,7 @@ void __attribute__((interrupt(auto_psv))) _T1Interrupt()
     
     U16 diff = (timer16 > spiWriteTime)?(timer16 - spiWriteTime):(timer16 + (MAX_U16 - spiWriteTime));
     
-    if(diff >= 20)
+    if(diff >= 50)
     {
         spiWriteTime = timer16;
         events.startSpiWrite = TRUE;
