@@ -44,6 +44,48 @@ typedef signed long long    I64;
 #define ARRAY_COUNT(n) (sizeof(n)/sizeof(n[0]))
 #define ABS_DIFF(a,b) (((a)>=(b))?((a)-(b)):((b)-(a)))
 
+typedef struct {
+    union {
+        U32 all;
+        struct {
+            U32 startSpiWrite:1;
+            U32 latchShiftRegs:1;
+            U32 :1;
+            U32 :1;
+            U32 :1;
+            U32 :1;
+            U32 :1;
+            U32 :1;
+            
+            U32 :1;
+            U32 :1;
+            U32 :1;
+            U32 :1;
+            U32 :1;
+            U32 :1;
+            U32 :1;
+            U32 :1;
+            
+            U32 :1;
+            U32 :1;
+            U32 :1;
+            U32 :1;
+            U32 :1;
+            U32 :1;
+            U32 :1;
+            U32 :1;
+            
+            U32 :1;
+            U32 :1;
+            U32 :1;
+            U32 :1;
+            U32 :1;
+            U32 :1;
+            U32 :1;
+            U32 :1;
+        };
+    };
+} event_flags;
 
 #ifdef	__cplusplus
 }

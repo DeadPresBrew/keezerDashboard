@@ -29,9 +29,9 @@ void
 setup (void)
 {
     //gpio
-    AD1PCFG = 0x1FFC;
-    TRISA = 0x3;
-    TRISB = 0xfee0;
+    AD1PCFG = 0x1FFC;       //config analog/digital pin finction
+    TRISA = 0x3;            //PORTA direction
+    TRISB = 0xfee0;         //PORTB direction
     //TODO(josh): setup analog inputs... maybe
 //    AD1CON2bits.VCFG = 0x0;
 //    AD1CON3bits.ADCS = 0x7;
@@ -67,7 +67,21 @@ setup (void)
     //uart
 
     //timers
+    PR1 = 2000;             //1ms @ 2MHz
+    T1CONbits.TCS = 0;      
+    T1CONbits.TSYNC = 0;
+    T1CONbits.TCKPS = 0x1;  //16MHz / 8
+    T1CONbits.TGATE = 0;
+    T1CONbits.TSIDL = 0;
+    T1CONbits.TON = 1;
 
     //interrupts
-
+    INTCON1bits.NSTDIS = 1; //enable nested interrupts
+    
+    IFS0bits.SPI1IF = 0;    //clear SPI1 int flag
+    IEC0bits.SPI1IE = 1;    //enable SPI1 int
+    
+    IPC2bits.SPI1IP = 0x5;  //one level above default
+    IFS0bits.T1IF = 0;      //clear TMR1 int flag
+    IEC0bits.T1IE = 1;      //enable TMR1 int
 }

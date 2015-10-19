@@ -16,6 +16,7 @@
                    projectFiles="true">
       <itemPath>src/keezerMain.c</itemPath>
       <itemPath>src/setup.c</itemPath>
+      <itemPath>src/spiLeds.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
