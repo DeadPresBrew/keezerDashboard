@@ -49,7 +49,7 @@ typedef struct {
         U32 all;
         struct {
             U32 startSpiWrite:1;
-            U32 latchShiftRegs:1;
+            U32 enableMuxCol:1;
             U32 :1;
             U32 :1;
             U32 :1;
