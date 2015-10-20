@@ -11,27 +11,29 @@
 #include "setup.h"
 
 
-enum {
-        seg1a=0, seg1b, seg1c, seg1d, seg1e, seg1f, seg1g, seg1dp, level4, abv0, abv3, abv6, abv9,  na0,  org0, red0,
-        seg2a,   seg2b, seg2c, seg2d, seg2e, seg2f, seg2g, seg2dp, level3, abv1, abv4, abv7, abv10, na1,  org1, red1,
-        seg3a,   seg3b, seg3c, seg3d, seg3e, seg3f, seg3g, seg3dp, level2, abv2, abv5, abv8, abv11, na2,  org2, red2,
-        seg4a,   seg4b, seg4c, seg4d, seg4e, seg4f, seg4g, seg4dp, level1, auxR, auxM, auxL, hot,   na3,  org3, red3,
-        coln0,   coln1, coln2, na4,   na5,   na6,   na7,   na8,    level0, ntok, ok,   na9,  na10,  na11, org4, red4
-}e_leds;
-
-#define ls(n)  (1ULL << (n))
-
-#define mapLeds(n)  { \
-    (U8)((n)         & 0xFF),  \
-    (U8)(((n) >> 8)  & 0xFF),  \
-    (U8)(((n) >> 16) & 0xFF),  \
-    (U8)(((n) >> 24) & 0xFF),  \
-    (U8)(((n) >> 32) & 0xFF) }
 
 /*
  * Global Variables
  */
 event_flags events = {};
+union {
+    struct {
+       U16 row0, row1, row2, row3, row4;
+    };
+    U16 rows[5];
+}spiLeds;
+
+void
+writeRow (U8 row, U16 mask)
+{
+    spiLeds.rows[row] |= mask;
+}
+
+void
+clearRow (U8 row, U16 mask)
+{
+    spiLeds.rows[row] &= ~mask;
+}
 
 /*
  * 
@@ -39,31 +41,13 @@ event_flags events = {};
 int
 main (void)
 {
-    U16 ledMuxCol;
-
-    typedef struct {
-        U16 col0, col1, col2, col3, col4;
-    }spiRegs;
-
-    struct {
-        union {
-            spiRegs regs;
-            U16 cols[5];
-        };
-    }spiLeds;
+    U16 ledMuxRow = 0;
 
     setup();
     
-    ledMuxCol = 0;
-    spiLeds.regs.col0 = 0x0eff;
-    spiLeds.regs.col1 = 0x0606;
-    spiLeds.regs.col2 = 0x065b;
-    spiLeds.regs.col3 = 0x1b66;
-    spiLeds.regs.col4 = 0x0506;
-
     for(;;)
     {
-        if(events.startSpiWrite == TRUE)
+        if(events.writeMuxRow == TRUE)
         {
             //disable all mux columns
             LATAbits.LATA2 = 0;
@@ -72,48 +56,50 @@ main (void)
             LATBbits.LATB2 = 0;
             LATBbits.LATB4 = 0;
             
-            //write data to spi
+            //need to clear SPI overflow bit or it hangs
             SPI1STATbits.SPIROV = 0;
-            SPI1BUF = spiLeds.cols[ledMuxCol];
             
-            events.startSpiWrite = FALSE;
+            //write data to spi
+            SPI1BUF = spiLeds.rows[ledMuxRow];
+            
+            events.writeMuxRow = FALSE;
         }
         
-        if(events.enableMuxCol == TRUE)
+        if(events.enableMuxRow == TRUE)
         {
-            switch(ledMuxCol)
+            switch(ledMuxRow)
             {
                 case 0: {
                     LATAbits.LATA2 = 1;
-                    ledMuxCol = 1;
+                    ledMuxRow = 1;
                 } break;
 
                 case 1: {
                     LATAbits.LATA3 = 1;
-                    ledMuxCol = 2;
+                    ledMuxRow = 2;
                 } break;
 
                 case 2: {
                     LATAbits.LATA4 = 1;
-                    ledMuxCol = 3;
+                    ledMuxRow = 3;
                 } break;
 
                 case 3: {
                     LATBbits.LATB2 = 1;
-                    ledMuxCol = 4;
+                    ledMuxRow = 4;
                 } break;
 
                 case 4: {
                     LATBbits.LATB4 = 1;
-                    ledMuxCol = 0;
+                    ledMuxRow = 0;
                 } break;
 
                 default: {
-                    ledMuxCol = 0;
+                    ledMuxRow = 0;
                 } break;
             }
 
-            events.enableMuxCol = FALSE;
+            events.enableMuxRow = FALSE;
         }
     }
 
@@ -132,7 +118,7 @@ void __attribute__((interrupt(auto_psv))) _T1Interrupt()
     if(diff >= 1)
     {
         spiWriteTime = timer16;
-        events.startSpiWrite = TRUE;
+        events.writeMuxRow = TRUE;
     }
     
     IFS0bits.T1IF = 0;
@@ -154,7 +140,7 @@ void __attribute__((interrupt(auto_psv))) _SPI1Interrupt()
 
 void __attribute__((interrupt(auto_psv))) _OC1Interrupt()
 {
-    events.enableMuxCol = TRUE;
+    events.enableMuxRow = TRUE;
 
     //stop TMR2
     T2CONbits.TON = 0;
